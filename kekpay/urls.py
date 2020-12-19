@@ -12,5 +12,5 @@ router = DefaultRouter()
 urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/obtain/', ObtainChallengeJWT.as_view(), name='obtain-token'),
-    path('api/auth/attempt/', AttemptChallenge.as_view(), name='attempt-challenge')
+    path('api/auth/attempt/', AttemptChallenge.as_view(), name='attempt-challenge'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
