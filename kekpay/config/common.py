@@ -9,7 +9,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 class Common(Configuration):
 
     INSTALLED_APPS = (
-        'django.contrib.admin',
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'django.contrib.sessions',
@@ -17,9 +16,8 @@ class Common(Configuration):
         'django.contrib.staticfiles',
 
 
-        # Third party apps
+        # Third party apps 
         'rest_framework',            # utilities for rest apis
-        'rest_framework.authtoken',  # token authentication
         'django_filters',            # for filtering rest endpoints
 
         # Your apps

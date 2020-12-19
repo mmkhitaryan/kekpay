@@ -1,6 +1,5 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import User
 from .auth import OneTimeTokenAuthManager
@@ -25,7 +24,7 @@ class CreateChallengeSerializer(serializers.Serializer):
 
         return new_attrs
 
-class AttemntChallengeSerializer(serializers.Serializer):
+class AttemptChallengeSerializer(serializers.Serializer):
     challenge_jwt = serializers.CharField(
         write_only=True
     )
@@ -46,7 +45,7 @@ class AttemntChallengeSerializer(serializers.Serializer):
         challenge_code = attrs.get('challenge_code')
 
         self.user = OneTimeTokenAuthManager.attemt_jwt_challenge_solve(
-            challenge_jwt, 
+            challenge_jwt,
             challenge_code
         )
 

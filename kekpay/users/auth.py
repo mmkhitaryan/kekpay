@@ -56,8 +56,10 @@ class OneTimeTokenAuthManager():
 
         if decoded_key['challenge_hmac'] != get_hmac_for_challenge_code(attemt_code):
             raise ChallengeInvalidAttempt
-        
+
         UserModel = get_user_model()
+
+        breakpoint()
         user, _ = UserModel.objects.get_or_create(phone=decoded_key['phone'])
 
         return user

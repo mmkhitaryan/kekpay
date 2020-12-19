@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .serializers import CreateChallengeSerializer, AttemntChallengeSerializer
+from .serializers import CreateChallengeSerializer, AttemptChallengeSerializer
 
 class BaseChallenges(APIView):
     permission_classes = ()
@@ -18,4 +18,4 @@ class ObtainChallengeJWT(BaseChallenges):
     serializer_class = CreateChallengeSerializer
 
 class AttemptChallenge(BaseChallenges):
-    serializer_class = AttemntChallengeSerializer
+    serializer_class = AttemptChallengeSerializer
