@@ -9,7 +9,7 @@ import jwt
 from django.utils.crypto import constant_time_compare, salted_hmac, get_random_string
 from django.conf import settings
 
-from .exceptions import ChallengeInvalidAttempt
+from .exceptions import ChallengeInvalidAttempt, ChallengeExpired, ChallengeInvalidData
 
 def get_challenge_code(N):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
@@ -47,7 +47,12 @@ class OneTimeTokenAuthManager():
 
     @classmethod
     def attemt_jwt_challenge_solve(cls, jwt, attemt_code):
-        decoded_key = JwtManager.decode(jwt)
+        try:
+            decoded_key = JwtManager.decode(jwt)
+        except jwt.exceptions.ExpiredSignatureError:
+            raise ChallengeExpired
+        except jwt.exceptions.DecodeError:
+            raise ChallengeInvalidData
 
         if decoded_key['challenge_hmac'] != get_hmac_for_challenge_code(attemt_code):
             raise ChallengeInvalidAttempt
