@@ -68,3 +68,14 @@ class TestChallenge(APITestCase):
         ).json()
 
         assert response['detail'] == 'Invalid token'
+
+    def test_invalid_code(self):
+        data = self.test_get_request_returns_a_given_user()
+        response = self.client.post(self.attempt_challenge_url, 
+            {
+                'challenge_jwt': data,
+                'challenge_code': 'ad13'
+            }
+        ).json()
+
+        assert response['detail'] == 'Invalid challenge code'
