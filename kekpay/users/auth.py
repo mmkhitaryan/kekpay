@@ -1,11 +1,15 @@
 import datetime
-import jwt
 import random
 import string
 import base64
+import hashlib
+
+import jwt
 
 from django.utils.crypto import constant_time_compare, salted_hmac, get_random_string
 from django.conf import settings
+
+from .exceptions import ChallengeInvalidAttempt
 
 def get_challenge_code(N):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
@@ -32,7 +36,7 @@ class OneTimeTokenAuthManager():
     def get_jwt_challenge_for_phone(cls, phone):
         challenge_code = get_challenge_code(cls.code_size)
         challenge_hmac = get_hmac_for_challenge_code(challenge_code)
-
+        print(challenge_code)
         return JwtManager.encode(
             {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=cls.expr_secods),
@@ -40,3 +44,12 @@ class OneTimeTokenAuthManager():
                 'challenge_hmac': challenge_hmac
             }
         )
+
+    @classmethod
+    def attemt_jwt_challenge_solve(cls, jwt, attemt_code):
+        decoded_key = JwtManager.decode(jwt)
+
+        if decoded_key['challenge_hmac'] != get_hmac_for_challenge_code(attemt_code):
+            raise ChallengeInvalidAttempt
+
+        return jwt
