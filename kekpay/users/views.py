@@ -1,13 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import CreateChallengeSerializer
 
+from .serializers import CreateChallengeSerializer, AttemntChallengeSerializer
 
-class ObtainChallengeJWT(APIView):
+class BaseChallenges(APIView):
     permission_classes = ()
     authentication_classes = ()
-
-    serializer_class = CreateChallengeSerializer
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -15,3 +13,9 @@ class ObtainChallengeJWT(APIView):
         return Response(
             serializer.validated_data
         )
+
+class ObtainChallengeJWT(BaseChallenges):
+    serializer_class = CreateChallengeSerializer
+
+class AttemptChallenge(BaseChallenges):
+    serializer_class = AttemntChallengeSerializer

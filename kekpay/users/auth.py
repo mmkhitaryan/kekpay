@@ -6,6 +6,7 @@ import hashlib
 
 import jwt
 
+from django.contrib.auth import get_user_model
 from django.utils.crypto import constant_time_compare, salted_hmac, get_random_string
 from django.conf import settings
 
@@ -36,7 +37,6 @@ class OneTimeTokenAuthManager():
     def get_jwt_challenge_for_phone(cls, phone):
         challenge_code = get_challenge_code(cls.code_size)
         challenge_hmac = get_hmac_for_challenge_code(challenge_code)
-        print(challenge_code)
         return JwtManager.encode(
             {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=cls.expr_secods),
@@ -56,5 +56,8 @@ class OneTimeTokenAuthManager():
 
         if decoded_key['challenge_hmac'] != get_hmac_for_challenge_code(attemt_code):
             raise ChallengeInvalidAttempt
+        
+        UserModel = get_user_model()
+        user, _ = UserModel.objects.get_or_create(phone=decoded_key['phone'])
 
-        return jwt
+        return user

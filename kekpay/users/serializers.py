@@ -1,9 +1,10 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import User
 from .auth import OneTimeTokenAuthManager
-
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class CreateChallengeSerializer(serializers.Serializer):
     phone = serializers.CharField(
@@ -11,25 +12,49 @@ class CreateChallengeSerializer(serializers.Serializer):
         write_only=True,
         max_length=11
     )
-    challenge_jwt = serializers.JSONField(
+    challenge_jwt = serializers.CharField(
         read_only=True
     )
 
     def validate(self, attrs):
         new_attrs = {}
-        phone = attrs.get('username')
-        new_attrs['challenge_jwt']='123'
+        phone = attrs.get('phone')
 
-        if username and password:
-            user = authenticate(request=self.context.get('request'),
-                                username=username, password=password)
-            if not user:
-                msg = _('Unable to log in with provided credentials.')
-                raise serializers.ValidationError(msg, code='authorization')
-        else:
-            msg = _('Must include "username" and "password".')
-            raise serializers.ValidationError(msg, code='authorization')
-
-        attrs['user'] = user
+        code = OneTimeTokenAuthManager.get_jwt_challenge_for_phone(phone)
+        new_attrs['challenge_jwt']=code
 
         return new_attrs
+
+class AttemntChallengeSerializer(serializers.Serializer):
+    challenge_jwt = serializers.CharField(
+        write_only=True
+    )
+    challenge_code = serializers.CharField(
+        label=_("SMS code"),
+        write_only=True,
+        max_length=OneTimeTokenAuthManager.code_size
+    )
+
+    @classmethod
+    def get_token(cls, user):
+        return RefreshToken.for_user(user)
+
+    def validate(self, attrs):
+        new_attrs = {}
+
+        challenge_jwt = attrs.get('challenge_jwt')
+        challenge_code = attrs.get('challenge_code')
+
+        self.user = OneTimeTokenAuthManager.attemt_jwt_challenge_solve(
+            challenge_jwt, 
+            challenge_code
+        )
+
+        refresh = self.get_token(self.user)
+
+        data = {}
+
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+
+        return data

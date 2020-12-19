@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    phone = models.CharField(max_length=11)
+    phone = models.CharField(max_length=11, unique=True)
 
     def __str__(self):
         return self.username
