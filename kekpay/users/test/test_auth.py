@@ -1,14 +1,20 @@
 import freezegun
 
 from django.urls import reverse
-from nose.tools import ok_, eq_
+from nose.tools import eq_
 from rest_framework.test import APITestCase
 from rest_framework import status
 from .factories import UserFactory
+from kekpay.users.auth import OneTimeTokenAuthManager
 
 dummy_challenge_code = 'ABC2'
 def dummy_return(*args):
     return dummy_challenge_code
+
+def get_outdated_jwt():
+    # Freezing time
+    with freezegun.freeze_time("2012-01-14"):
+        return OneTimeTokenAuthManager.get_jwt_challenge_for_phone('77082113945').decode()
 
 class TestChallenge(APITestCase):
     def setUp(self):
@@ -38,4 +44,27 @@ class TestChallenge(APITestCase):
                 'challenge_jwt': data,
                 'challenge_code': dummy_challenge_code
             }
-        )
+        ).json()
+
+        assert response['refresh']
+        assert response['access']
+    
+    def test_too_late(self):
+        response = self.client.post(self.attempt_challenge_url, 
+            {
+                'challenge_jwt': get_outdated_jwt(),
+                'challenge_code': dummy_challenge_code
+            }
+        ).json()
+
+        assert response['detail'] == 'Too late, retry with a new SMS code'
+
+    def test_invalid_data(self):
+        response = self.client.post(self.attempt_challenge_url, 
+            {
+                'challenge_jwt': 'aasdfasdf.asdfasdf.2asdfasdfaf',
+                'challenge_code': dummy_challenge_code
+            }
+        ).json()
+
+        assert response['detail'] == 'Invalid token'

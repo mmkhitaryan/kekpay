@@ -17,7 +17,7 @@ def get_challenge_code(N):
 
 def get_hmac_for_challenge_code(code):
     return base64.b64encode(
-        salted_hmac('OneTimeTokenAuthManager', code).digest()
+        salted_hmac('OneTimeTokenAuthManager', code, algorithm='sha256').digest()
     ).decode()
 
 class JwtManager():
@@ -27,7 +27,7 @@ class JwtManager():
 
     @classmethod
     def decode(cls, obj):
-        return jwt.decode(obj, settings.SECRET_KEY, algorithm='HS256')
+        return jwt.decode(obj, settings.SECRET_KEY, algorithms=['HS256'])
 
 class OneTimeTokenAuthManager():
     expr_secods = 60*30 # 15 minutes lifetime
@@ -46,9 +46,9 @@ class OneTimeTokenAuthManager():
         )
 
     @classmethod
-    def attemt_jwt_challenge_solve(cls, jwt, attemt_code):
+    def attemt_jwt_challenge_solve(cls, jwt_token, attemt_code):
         try:
-            decoded_key = JwtManager.decode(jwt)
+            decoded_key = JwtManager.decode(jwt_token)
         except jwt.exceptions.ExpiredSignatureError:
             raise ChallengeExpired
         except jwt.exceptions.DecodeError:
@@ -59,7 +59,6 @@ class OneTimeTokenAuthManager():
 
         UserModel = get_user_model()
 
-        breakpoint()
         user, _ = UserModel.objects.get_or_create(phone=decoded_key['phone'])
 
         return user
