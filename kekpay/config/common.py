@@ -22,6 +22,7 @@ class Common(Configuration):
 
         # Your apps
         'kekpay.users',
+        'kekpay.accounts'
 
     )
 
