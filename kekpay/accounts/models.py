@@ -24,9 +24,20 @@ class TransactionHistory(models.Model):
         on_delete=models.CASCADE
     )
 
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
     created_at = models.DateTimeField(default=timezone.now)
 
 class Account(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    balance = models.DecimalField(max_digits=12, decimal_places=2)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    balance = models.DecimalField(
+        max_digits=12,
+        decimal_places=2, 
+        default=0
+    )
