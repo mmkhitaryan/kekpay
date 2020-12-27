@@ -19,10 +19,6 @@ class TransactionHistory(models.Model):
         on_delete=models.CASCADE,
         related_name='to_account'
     )
-    started_by = models.ForeignKey(
-        UserModel,
-        on_delete=models.CASCADE
-    )
 
     amount = models.DecimalField(
         max_digits=12,

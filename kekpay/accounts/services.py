@@ -5,26 +5,27 @@ from django.db.models import Q
 from django.contrib.auth import get_user_model
 
 from .models import Account, TransactionHistory
-from .exceptions import InsufficientFundsError
+from .exceptions import InsufficientFundsError, CannotTransactYourself, TransferAmmountMustBeNaturalNumber
 
 UserModel = get_user_model()
 
 def get_own_transaction_history(me_user):
-    my_account = me_user.account
+    my_accounts = me_user.accounts.all()
 
+    # TODO: mark transactions as in and out for output
     own_transactions = TransactionHistory.objects.filter(
-        Q(from_account=my_account) |
-        Q(to_account=my_account)
+        Q(from_account__in=my_accounts) |
+        Q(to_account__in=my_accounts)
     )
     return own_transactions
 
-def transfer_balance_from_user_to_user(from_user, to_user, amount):
-    from_account = from_user.account
-    to_account = to_user.account
-
-    return transfer_from_to(to_account, from_account, amount)
-
 def transfer_from_to(source_account, destination_account, amount):
+    if source_account.pk == destination_account.pk:
+        raise CannotTransactYourself
+
+    if amount<=0:
+        raise TransferAmmountMustBeNaturalNumber
+
     with transaction.atomic():
         Account.objects.select_for_update().filter(
             id__in=(

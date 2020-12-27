@@ -1,8 +1,9 @@
-from django.test import TestCase
-from .models import Account
-from .services import transfer_from_to
-from .exceptions import InsufficientFundsError
 import pytest
+from django.test import TestCase
+
+from kekpay.accounts.models import Account
+from kekpay.accounts.services import transfer_from_to
+from kekpay.accounts.exceptions import InsufficientFundsError
 
 class TransactionsTestCase(TestCase):
     def setUp(self):
