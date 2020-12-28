@@ -28,7 +28,7 @@ class E2ETransactionsApiTestCase(TestCase):
     def test_transaction_from_first_to_second_successful(self):
         t = self.client.post('/api/transactions/transfer_to/',
             {
-                'amount': '1',
+                'amount': '0.5',
                 'transfer_destination': self.second_user_account.pk,
                 'source_account': self.first_user_account.pk
             },
@@ -39,8 +39,8 @@ class E2ETransactionsApiTestCase(TestCase):
         self.first_user_account.refresh_from_db()
         self.second_user_account.refresh_from_db()
 
-        assert self.first_user_account.balance == 0
-        assert self.second_user_account.balance == 4
+        assert self.first_user_account.balance == 0.5
+        assert self.second_user_account.balance == 3.5
 
     def test_transaction_from_first_to_second_invalid_amount(self):
         t = self.client.post('/api/transactions/transfer_to/',
@@ -75,7 +75,7 @@ class E2ETransactionsApiTestCase(TestCase):
     def test_transaction_from_others_account(self):
         t = self.client.post('/api/transactions/transfer_to/',
             {
-                'amount': '2222',
+                'amount': '2',
                 'transfer_destination': self.first_user_account.pk,
                 'source_account': self.second_user_account.pk
             },
@@ -111,3 +111,15 @@ class E2ETransactionsApiTestCase(TestCase):
         self.first_user_account.refresh_from_db()
         assert self.first_user_account.balance == 1
         assert t['detail'] == 'No source account found'
+
+    def test_transaction_history(self):
+        self.test_transaction_from_first_to_second_successful()
+        response = self.client.get('/api/transactions/').json()
+        assert response[0]['way'] == 'out'
+
+        self.test_transaction_from_first_to_second_successful()
+        self.client.force_authenticate(user=self.second_user)
+        response = self.client.get('/api/transactions/').json()
+        assert response[0]['way'] == 'in'
+
+    # TODO: Add test for multiple transaction history enteties

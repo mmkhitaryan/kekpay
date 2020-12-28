@@ -26,6 +26,7 @@ class TransactionHistory(models.Model):
     )
     created_at = models.DateTimeField(default=timezone.now)
 
+
 class Account(models.Model):
     id = models.UUIDField(
         primary_key=True,

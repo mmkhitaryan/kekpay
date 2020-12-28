@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
-from .models import Account
+from .models import Account, TransactionHistory
 from .exceptions import NoSourceAccount, NoDestinationAccount
 
 class DoTransactionSerializer(serializers.Serializer):
@@ -21,6 +21,13 @@ class DoTransactionSerializer(serializers.Serializer):
         except Account.DoesNotExist:
             raise NoDestinationAccount
         return attrs
+
+class TransactionsHistorySeriazlier(serializers.ModelSerializer):
+    way = serializers.CharField()
+
+    class Meta:
+        model = TransactionHistory
+        fields = ['id', 'amount', 'created_at', 'way']
 
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:

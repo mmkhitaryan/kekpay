@@ -7,15 +7,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .services import transfer_from_to, get_own_transaction_history
-from .serializers import DoTransactionSerializer, AccountSerializer
+from .serializers import DoTransactionSerializer, AccountSerializer, TransactionsHistorySeriazlier
 from .exceptions import YouCannotTransferFromOthersAccounts, NoSourceAccount
 
 UserModel = get_user_model()
 
 class TransactionView(ViewSet):
-    def get(self, request, format=None):
+    def list(self, request, format=None):
         queryset = get_own_transaction_history(request.user)
-        return Response(queryset)
+        serializer = TransactionsHistorySeriazlier(queryset, many=True)
+        return Response(serializer.data)
 
     @action(
         methods=['post'],
