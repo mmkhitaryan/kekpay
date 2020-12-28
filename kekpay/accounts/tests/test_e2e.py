@@ -8,7 +8,6 @@ from kekpay.accounts.models import Account
 
 UserModel = get_user_model()
 
-# TODO: use view names instead of direct URLs
 
 class E2ETransactionsApiTestCase(TestCase):
     def setUp(self):
@@ -38,6 +37,18 @@ class E2ETransactionsApiTestCase(TestCase):
         t = t.json()
         assert t['balance'] == '0.00'
 
+    def test_transaction_from_first_to_second_invalid_amount(self):
+        t = self.client.post('/api/transactions/transfer_to/',
+            {
+                'amount': '-2',
+                'transfer_destination': self.second_user_account.pk,
+                'source_account': self.firest_user_account.pk
+            },
+            format='json'
+        )
+        t = t.json()
+        assert t['detail'] == 'Transfer amount must be more or not zero'
+
     def test_transaction_from_first_to_second_insufficent_funds(self):
         t = self.client.post('/api/transactions/transfer_to/',
             {
@@ -62,3 +73,26 @@ class E2ETransactionsApiTestCase(TestCase):
         t = t.json()
         assert t['detail'] == 'You can not transfer from others accounts'
 
+    def test_transaction_from_not_found_destination(self):
+        t = self.client.post('/api/transactions/transfer_to/',
+            {
+                'amount': '2222',
+                'transfer_destination': '912221f8-25d9-45fe-b120-0b37c9a1720c',
+                'source_account': self.second_user_account.pk
+            },
+            format='json'
+        )
+        t = t.json()
+        assert t['detail'] == 'No destination account found'
+
+    def test_transaction_from_not_found_source(self):
+        t = self.client.post('/api/transactions/transfer_to/',
+            {
+                'amount': '2222',
+                'transfer_destination': self.firest_user_account.pk,
+                'source_account': '912221f8-25d9-45fe-b120-0b37c9a1720c'
+            },
+            format='json'
+        )
+        t = t.json()
+        assert t['detail'] == 'No source account found'

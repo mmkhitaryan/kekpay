@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from .services import transfer_from_to, get_own_transaction_history
 from .serializers import DoTransactionSerializer, AccountSerializer
-from .exceptions import YouCannotTransferFromOthersAccounts
+from .exceptions import YouCannotTransferFromOthersAccounts, NoSourceAccount
 
 UserModel = get_user_model()
 
@@ -28,8 +28,11 @@ class TransactionView(ViewSet):
         source_account = transfer_serializer.validated_data['source_account']
         destination_account = transfer_serializer.validated_data['destination_account']
 
-        # VERY IMPORTANT!!! Before transaction, check if the request's user is the owner of the account
-        source_account_owner = UserModel.objects.get(accounts__in=[source_account])
+        try:
+            source_account_owner = UserModel.objects.get(accounts__in=[source_account])
+        except UserModel.DoesNotExist:
+            raise NoSourceAccount
+
         if source_account_owner!=request.user:
             raise YouCannotTransferFromOthersAccounts
 

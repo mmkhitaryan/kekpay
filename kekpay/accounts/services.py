@@ -19,6 +19,7 @@ def get_own_transaction_history(me_user):
     )
     return own_transactions
 
+# TODO: write transction history
 def transfer_from_to(source_account, destination_account, amount):
     if source_account.pk == destination_account.pk:
         raise CannotTransactYourself

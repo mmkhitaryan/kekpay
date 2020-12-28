@@ -5,10 +5,15 @@ class InsufficientFundsError(APIException):
     default_detail = 'Insufficient funds'
     default_code = 'insufficient_funds'
 
-class DestinationAccount(APIException):
+class NoDestinationAccount(APIException):
     status_code = 404
     default_detail = 'No destination account found'
     default_code = 'no_destination_account'
+
+class NoSourceAccount(APIException):
+    status_code = 404
+    default_detail = 'No source account found'
+    default_code = 'no_source_account'
 
 class CannotTransactYourself(APIException):
     status_code = 404

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from .models import Account
+from .exceptions import NoSourceAccount, NoDestinationAccount
 
 class DoTransactionSerializer(serializers.Serializer):
     amount = serializers.DecimalField(max_digits=12, decimal_places=2)
@@ -8,11 +9,17 @@ class DoTransactionSerializer(serializers.Serializer):
     source_account = serializers.UUIDField()
 
     def validate(self, attrs):
-        source_account = get_object_or_404(Account, id=attrs['source_account'])
-        attrs['source_account'] = source_account
+        try:
+            source_account = Account.objects.get(id=attrs['source_account'])
+            attrs['source_account'] = source_account
+        except Account.DoesNotExist:
+            raise NoSourceAccount
 
-        destination_account = get_object_or_404(Account, id=attrs['transfer_destination'])
-        attrs['destination_account'] = destination_account
+        try:
+            destination_account = Account.objects.get(id=attrs['transfer_destination'])
+            attrs['destination_account'] = destination_account
+        except Account.DoesNotExist:
+            raise NoDestinationAccount
         return attrs
 
 class AccountSerializer(serializers.ModelSerializer):
