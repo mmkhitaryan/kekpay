@@ -3,6 +3,8 @@ from rest_framework import serializers
 
 from .models import User
 from .auth import OneTimeTokenAuthManager
+from .sms import send_verification_message
+
 from rest_framework_simplejwt.tokens import RefreshToken
 
 class CreateChallengeSerializer(serializers.Serializer):
@@ -19,9 +21,12 @@ class CreateChallengeSerializer(serializers.Serializer):
         new_attrs = {}
         phone = attrs.get('phone')
 
-        code = OneTimeTokenAuthManager.get_jwt_challenge_for_phone(phone)
-        new_attrs['challenge_jwt']=code
+        challenge = OneTimeTokenAuthManager.get_jwt_challenge_for_phone(phone)
+        challenge_jwt = challenge[0]
+        challenge_code = challenge[1]
 
+        new_attrs['challenge_jwt']=challenge_jwt
+        send_verification_message(phone, challenge_code)
         return new_attrs
 
 class AttemptChallengeSerializer(serializers.Serializer):

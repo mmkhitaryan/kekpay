@@ -37,13 +37,13 @@ class OneTimeTokenAuthManager():
     def get_jwt_challenge_for_phone(cls, phone):
         challenge_code = get_challenge_code(cls.code_size)
         challenge_hmac = get_hmac_for_challenge_code(challenge_code)
-        return JwtManager.encode(
+        return (JwtManager.encode(
             {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=cls.expr_secods),
                 'phone': phone,
                 'challenge_hmac': challenge_hmac
             }
-        )
+        ), challenge_code)
 
     @classmethod
     def attemt_jwt_challenge_solve(cls, jwt_token, attemt_code):

@@ -14,7 +14,7 @@ def dummy_return(*args):
 def get_outdated_jwt():
     # Freezing time
     with freezegun.freeze_time("2012-01-14"):
-        return OneTimeTokenAuthManager.get_jwt_challenge_for_phone('77082113945').decode()
+        return OneTimeTokenAuthManager.get_jwt_challenge_for_phone('77082113945')[0].decode()
 
 class TestChallenge(APITestCase):
     def setUp(self):

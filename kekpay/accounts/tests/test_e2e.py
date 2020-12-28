@@ -117,7 +117,6 @@ class E2ETransactionsApiTestCase(TestCase):
         response = self.client.get('/api/transactions/').json()
         assert response[0]['way'] == 'out'
 
-        self.test_transaction_from_first_to_second_successful()
         self.client.force_authenticate(user=self.second_user)
         response = self.client.get('/api/transactions/').json()
         assert response[0]['way'] == 'in'
