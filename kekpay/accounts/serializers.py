@@ -4,7 +4,7 @@ from .models import Account, TransactionHistory
 from .exceptions import NoSourceAccount, NoDestinationAccount
 
 class DoTransactionSerializer(serializers.Serializer):
-    amount = serializers.DecimalField(max_digits=12, decimal_places=2)
+    amount = serializers.DecimalField(max_digits=255, decimal_places=6)
     transfer_destination = serializers.UUIDField()
     source_account = serializers.UUIDField()
 

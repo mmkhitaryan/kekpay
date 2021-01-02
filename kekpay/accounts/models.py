@@ -2,9 +2,11 @@ import uuid
 
 from django.db import models
 from django.db import transaction
-from .exceptions import InsufficientFundsError
 from django.utils import timezone
 from django.conf import settings
+
+from .exceptions import InsufficientFundsError
+from .currencies import CurrenciesList
 
 UserModel = settings.AUTH_USER_MODEL
 
@@ -21,10 +23,11 @@ class TransactionHistory(models.Model):
     )
 
     amount = models.DecimalField(
-        max_digits=12,
-        decimal_places=2
+        max_digits=255,
+        decimal_places=6,
     )
     created_at = models.DateTimeField(default=timezone.now)
+
 
 
 class Account(models.Model):
@@ -34,7 +37,7 @@ class Account(models.Model):
         editable=False
     )
     balance = models.DecimalField(
-        max_digits=12,
-        decimal_places=2, 
-        default=0
+        max_digits=255,
+        decimal_places=6,
+        default=0,
     )
