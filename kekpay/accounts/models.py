@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.conf import settings
 
 from .exceptions import InsufficientFundsError
-from .currencies import CurrenciesList
+from .currencies import currencies_choices, get_currency_by_code
 
 UserModel = settings.AUTH_USER_MODEL
 
@@ -41,3 +41,16 @@ class Account(models.Model):
         decimal_places=6,
         default=0,
     )
+    _currency = models.CharField(
+        max_length=3,
+        choices=currencies_choices,
+        default='USD',
+    )
+
+    @property
+    def currency(self):
+        return get_currency_by_code(self._currency)
+
+    @currency.setter
+    def currency(self, value):
+        self._currency = value

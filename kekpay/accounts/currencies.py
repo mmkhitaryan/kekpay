@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 class BaseCurrency():
     pass
@@ -27,6 +28,21 @@ class BTC(DigitalCurrency):
 class LTC(DigitalCurrency):
     pass
 
-class CurrenciesList(models.TextChoices):
-    USD = USD, 'USD'
+currencies_list = {
+    'USD': USD,
+    'RUB': RUB,
+    'KZT': KZT,
+    'BTC': BTC,
+    'LTC': LTC,
+}
 
+currencies_choices = [
+    ('USD', 'United States dollar'),
+    ('RUB', 'Russian Ruble'),
+    ('KZT', 'Tenge'),
+    ('BTC', 'Bitcoin'),
+    ('LTC', 'Litecoin')
+]
+
+def get_currency_by_code(code):
+    return currencies_list[code]
