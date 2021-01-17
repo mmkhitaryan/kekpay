@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from .models import Account, TransactionHistory
 from .exceptions import (
     InsufficientFundsError, CannotTransactYourself, TransferAmmountMustBeNaturalNumber, 
-    YouCannotTransactToDifferentCurrencyAccounts
+    YouCannotTransactToDifferentCurrencyAccounts, YouCannotTransferFromOthersAccounts
 )
 
 UserModel = get_user_model()
@@ -33,6 +33,9 @@ def transfer_from_to(source_account, destination_account, amount):
 
     if amount<=0:
         raise TransferAmmountMustBeNaturalNumber
+
+    if source_account.currency != destination_account.currency:
+        raise YouCannotTransactToDifferentCurrencyAccounts
 
     with transaction.atomic():
         Account.objects.select_for_update().filter(

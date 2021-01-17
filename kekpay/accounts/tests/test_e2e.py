@@ -5,6 +5,7 @@ from rest_framework.test import force_authenticate
 from django.contrib.auth import get_user_model
 
 from kekpay.accounts.models import Account
+from kekpay.accounts.currencies import currencies_choices
 
 UserModel = get_user_model()
 
@@ -20,6 +21,11 @@ class E2ETransactionsApiTestCase(TestCase):
         self.second_user = UserModel.objects.create(phone='77777324')
         self.second_user.accounts.add(self.second_user_account)
         self.second_user.save()
+
+        self.third_user_account = Account.objects.create(balance=3, currency=currencies_choices[2][0])
+        self.third_user = UserModel.objects.create(phone='77377324')
+        self.third_user.accounts.add(self.third_user_account)
+        self.third_user.save()
 
         client = APIClient()
         client.force_authenticate(user=self.first_user)
@@ -111,6 +117,36 @@ class E2ETransactionsApiTestCase(TestCase):
         self.first_user_account.refresh_from_db()
         assert self.first_user_account.balance == 1
         assert t['detail'] == 'No source account found'
+
+    def test_transaction_from_not_found_source(self):
+        t = self.client.post('/api/transactions/transfer_to/',
+            {
+                'amount': '1',
+                'transfer_destination': self.first_user_account.pk,
+                'source_account': self.second_user_account.pk
+            },
+            format='json'
+        )
+
+        t = t.json()
+        self.first_user_account.refresh_from_db()
+        assert self.first_user_account.balance == 1
+        assert t['detail'] == 'You can not transfer from others accounts'
+
+    def test_transaction_from_not_found_source(self):
+        t = self.client.post('/api/transactions/transfer_to/',
+            {
+                'amount': '1',
+                'source_account': self.first_user_account.pk,
+                'transfer_destination': self.third_user_account.pk
+            },
+            format='json'
+        )
+
+        t = t.json()
+        self.first_user_account.refresh_from_db()
+        assert self.first_user_account.balance == 1
+        assert t['detail'] == 'You can not transfer to different currency accounts'
 
     def test_transaction_history(self):
         self.test_transaction_from_first_to_second_successful()

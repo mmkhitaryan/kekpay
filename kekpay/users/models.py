@@ -10,7 +10,7 @@ class User(AbstractBaseUser):
         null=False
     )
     accounts = models.ManyToManyField(
-        Account
+        Account, related_name='owners'
     )
 
     USERNAME_FIELD = 'phone'
