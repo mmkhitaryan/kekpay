@@ -40,6 +40,9 @@ class Account(models.Model):
         default='USD',
     )
 
+    # TODO: clip the balance using currency, Decimal quantize during clear()
+    # so we won't left 4.003 dollars, but 4.00
+
     @property
     def currency(self):
         return get_currency_by_code(self._currency)
