@@ -157,4 +157,4 @@ class E2ETransactionsApiTestCase(TestCase):
         response = self.client.get('/api/transactions/').json()
         assert response[0]['way'] == 'in'
 
-    # TODO: Add test for multiple transaction history enteties
+    # TODO: Add test for multiple transaction history entities
