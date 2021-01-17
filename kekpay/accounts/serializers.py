@@ -1,7 +1,10 @@
+from decimal import Decimal
+
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from .models import Account, TransactionHistory
 from .exceptions import NoSourceAccount, NoDestinationAccount
+
 
 class DoTransactionSerializer(serializers.Serializer):
     amount = serializers.DecimalField(max_digits=255, decimal_places=6)

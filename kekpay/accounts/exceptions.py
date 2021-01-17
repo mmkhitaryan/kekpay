@@ -25,7 +25,14 @@ class TransferAmmountMustBeNaturalNumber(APIException):
     default_detail = 'Transfer amount must be more or not zero'
     default_code = 'transfer_amount_must_be_natural_number'
 
+# TODO: checks in services
 class YouCannotTransferFromOthersAccounts(APIException):
     status_code = 400
     default_detail = 'You can not transfer from others accounts'
     default_code = 'cannot_transfer_from_others_accounts'
+
+# TODO: checks in services
+class YouCannotTransactToDifferentCurrencyAccounts(APIException):
+    status_code = 400
+    default_detail = 'You can not transfer to different currency accounts'
+    default_code = 'cannot_transfer_to_different_currency_account'

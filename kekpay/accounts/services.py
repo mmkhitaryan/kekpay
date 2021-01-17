@@ -5,7 +5,10 @@ from django.db.models import Q, Case, CharField, Value, When
 from django.contrib.auth import get_user_model
 
 from .models import Account, TransactionHistory
-from .exceptions import InsufficientFundsError, CannotTransactYourself, TransferAmmountMustBeNaturalNumber
+from .exceptions import (
+    InsufficientFundsError, CannotTransactYourself, TransferAmmountMustBeNaturalNumber, 
+    YouCannotTransactToDifferentCurrencyAccounts
+)
 
 UserModel = get_user_model()
 

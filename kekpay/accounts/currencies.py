@@ -5,13 +5,13 @@ class BaseCurrency():
     pass
 
 class DigitalCurrency(BaseCurrency):
-    number_to_basic = 0
+    minimal_piece = 1000000
 
 class RealCurrencyBase(BaseCurrency):
     pass
 
 class RealCurrencyBaseHundred(RealCurrencyBase):
-    number_to_basic = 2
+    minimal_piece = 100
 
 class USD(RealCurrencyBaseHundred):
     pass
