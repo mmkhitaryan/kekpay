@@ -1,4 +1,5 @@
 import uuid
+from decimal import Decimal
 
 from django.db import models
 from django.db import transaction
@@ -6,7 +7,6 @@ from django.utils import timezone
 
 from .exceptions import InsufficientFundsError
 from .currencies import currencies_choices, get_currency_by_code
-
 
 class TransactionHistory(models.Model):
     from_account = models.ForeignKey(
@@ -29,9 +29,9 @@ class TransactionHistory(models.Model):
 
 
 class Account(models.Model):
-    balance = models.DecimalField(
+    balance = models.DecimalField( # они сами квантазируют по decimal_places??
         max_digits=255,
-        decimal_places=6,
+        decimal_places=8,
         default=0,
     )
     _currency = models.CharField(
@@ -40,9 +40,6 @@ class Account(models.Model):
         default='USD',
     )
 
-    # TODO: clip the balance using currency, Decimal quantize during clear()
-    # so we won't left 4.003 dollars, but 4.00
-
     @property
     def currency(self):
         return get_currency_by_code(self._currency)
@@ -50,3 +47,11 @@ class Account(models.Model):
     @currency.setter
     def currency(self, value):
         self._currency = value
+
+    def clean(self):
+        N_PLACES_DECIMAL = Decimal(10) ** self.currency.minimal_piece
+        self.balance = self.balance.quantize(N_PLACES_DECIMAL)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super(Account, self).save(*args, **kwargs)

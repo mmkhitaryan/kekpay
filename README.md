@@ -1,3 +1,3 @@
 # kekpay
 
-P2P transfers using DRF, docker, django.
+P2P multicurrency transfers using DRF, docker, django. And telegram like SMS auth system.

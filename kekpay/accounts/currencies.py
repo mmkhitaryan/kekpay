@@ -5,13 +5,15 @@ class BaseCurrency():
     pass
 
 class DigitalCurrency(BaseCurrency):
-    minimal_piece = 1000000
+    # maximum 0.00000001 btc
+    minimal_piece = -8
 
 class RealCurrencyBase(BaseCurrency):
     pass
 
 class RealCurrencyBaseHundred(RealCurrencyBase):
-    minimal_piece = 100
+    # maximum 0.02$
+    minimal_piece = -2
 
 class USD(RealCurrencyBaseHundred):
     pass

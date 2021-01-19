@@ -122,21 +122,6 @@ class E2ETransactionsApiTestCase(TestCase):
         t = self.client.post('/api/transactions/transfer_to/',
             {
                 'amount': '1',
-                'transfer_destination': self.first_user_account.pk,
-                'source_account': self.second_user_account.pk
-            },
-            format='json'
-        )
-
-        t = t.json()
-        self.first_user_account.refresh_from_db()
-        assert self.first_user_account.balance == 1
-        assert t['detail'] == 'You can not transfer from others accounts'
-
-    def test_transaction_from_not_found_source(self):
-        t = self.client.post('/api/transactions/transfer_to/',
-            {
-                'amount': '1',
                 'source_account': self.first_user_account.pk,
                 'transfer_destination': self.third_user_account.pk
             },
@@ -147,6 +132,38 @@ class E2ETransactionsApiTestCase(TestCase):
         self.first_user_account.refresh_from_db()
         assert self.first_user_account.balance == 1
         assert t['detail'] == 'You can not transfer to different currency accounts'
+
+    def test_transaction_from_not_found_source(self):
+        t = self.client.post('/api/transactions/transfer_to/',
+            {
+                'amount': '0.0333',
+                'source_account': self.first_user_account.pk,
+                'transfer_destination': self.third_user_account.pk
+            },
+            format='json'
+        )
+
+        t = t.json()
+        self.first_user_account.refresh_from_db()
+        assert self.first_user_account.balance == 1
+        assert t['detail'] == 'You can not transfer to different currency accounts'
+
+    def test_transaction_from_first_to_second_successful_quantity_test(self):
+        t = self.client.post('/api/transactions/transfer_to/',
+            {
+                'amount': '0.05',
+                'transfer_destination': self.second_user_account.pk,
+                'source_account': self.first_user_account.pk
+            },
+            format='json'
+        )
+        t = t.json()
+
+        self.first_user_account.refresh_from_db()
+        self.second_user_account.refresh_from_db()
+
+        assert str(self.first_user_account.balance) == '0.95'
+        assert str(self.second_user_account.balance) == '3.05'
 
     def test_transaction_history(self):
         self.test_transaction_from_first_to_second_successful()
